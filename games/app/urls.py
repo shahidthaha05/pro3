@@ -14,7 +14,8 @@ urlpatterns=[
 
         path('register/', views.register, name='register'),
         path('user_home', views.user_home, name='user_home'),
-        path('game/<int:game_id>/', views.view_game, name='view_game'),
+        path('game/<int:game_id>/', views.view_game, name='view_game'),  
+        path('game/<int:game_id>/booking/', views.booking_game, name='booking_game'),
 
 
 ]

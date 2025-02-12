@@ -22,3 +22,5 @@ class Slot(models.Model):
         return f"{self.game.title}: {self.start_time} - {self.end_time}"
 
 
+    def is_available(self):
+        return not self.reserved

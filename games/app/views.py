@@ -151,41 +151,61 @@ def user_home(req):
         data = Game.objects.all()
         return render(req, 'user/home.html', {'data': data})
     else:
-        return redirect('game_login')
+        return redirect('game_login')  # Redirect to login if no user in session
 
+
+
+
+
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Game, Slot
+from .form import SlotBookingForm, UserDetailsForm
 
 
 
 from django.shortcuts import render, get_object_or_404
-from .models import Game
-
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Game, Slot  # Adjust import to match your actual models
+from .models import Game, Slot
 from django.contrib import messages
-
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from .models import Game, Slot  # Make sure you import your Game and Slot models
-
-
 
 def view_game(req, game_id):
+    # Get the game object based on the game_id
     game = get_object_or_404(Game, pk=game_id)
-    slots = game.slots.filter(reserved=False)  # Only show available slots
+
+    # Get all the available slots for this game (where reserved is False)
+    available_slots = game.slots.filter(reserved=False)
+
+    return render(req, 'user/view_game.html', {'game': game, 'available_slots': available_slots})
+
+
+
+
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Game, Slot
+from django.contrib import messages
+
+def booking_game(req, game_id):
+    game = get_object_or_404(Game, pk=game_id)
+    available_slots = game.slots.filter(reserved=False)
 
     if req.method == 'POST':
         slot_id = req.POST.get('slot_id')
         slot = get_object_or_404(Slot, pk=slot_id, game=game)
 
         if slot.reserved:
-            messages.error(req, "This slot is already reserved.")
+            messages.error(req, "This slot is already booked.")
         else:
+            # Mark the slot as reserved
             slot.reserved = True
             slot.save()
-            messages.success(req, f"Slot {slot.start_time} - {slot.end_time} has been reserved.")
-            return redirect('user_home')  # Redirect after booking
+            messages.success(req, f"Your slot on {slot.start_time} - {slot.end_time} has been reserved!")
+            return redirect('user_home')  # Redirect to home after booking
 
-    return render(req, 'user/view_game.html', {'game': game, 'slots': slots})
-
-
+    return render(req, 'user/booking_game.html', {'game': game, 'available_slots': available_slots})
 

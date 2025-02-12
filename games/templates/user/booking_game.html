@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Slot for {{ game.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+
+        .back-link {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Booking Slots for {{ game.title }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    
+    <label for="slot">Select a Slot:</label>
+    <select name="slot_id" id="slot">
+        {% for slot in available_slots %}
+            <option value="{{ slot.id }}">
+                {{ slot.start_time }} - {{ slot.end_time }}
+            </option>
+        {% endfor %}
+    </select>
+
+    <button type="submit" class="button">Book Slot</button>
+</form>
+
+<div class="back-link">
+    <a href="{% url 'view_game' game_id=game.id %}">Back to Game Details</a>
+</div>
+
+</body>
+</html>

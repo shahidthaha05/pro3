@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Home - Game Dashboard</title>
     <style>
-        /* General Reset and Body Styling */
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +12,7 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f7fc;
             color: #333;
             line-height: 1.6;
@@ -27,7 +26,6 @@
             margin: 0;
         }
 
-        /* Game List Grid Styling */
         .game-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -36,7 +34,6 @@
             margin-top: 20px;
         }
 
-        /* Individual Game Item Styling */
         .game-item {
             background-color: white;
             padding: 20px;
@@ -48,18 +45,6 @@
         .game-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .game-item img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            transition: transform 0.3s ease;
-        }
-
-        .game-item img:hover {
-            transform: scale(1.05);
         }
 
         .game-item h3 {
@@ -81,23 +66,19 @@
             margin-bottom: 15px;
         }
 
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        .game-item a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 10px;
+            display: inline-block;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .game-item a:hover {
+            text-decoration: underline;
+            color: #45a049;
         }
 
-        /* Back to Home/Logout Link */
         .back-link {
             text-align: center;
             margin-top: 30px;
@@ -114,14 +95,6 @@
             color: #45a049;
             text-decoration: underline;
         }
-
-        /* No Games Available Message */
-        .no-games {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #777;
-            padding: 20px;
-        }
     </style>
 </head>
 <body>
@@ -132,24 +105,14 @@
         {% if data %}
             {% for game in data %}
                 <div class="game-item">
-                    {% if game.image %}
-                        <img src="{{ game.image.url }}" alt="{{ game.title }}">
-                    {% else %}
-                        <img src="https://via.placeholder.com/300" alt="No Image Available">
-                    {% endif %}
                     <h3>{{ game.title }}</h3>
-                    <p>{{ game.description|truncatewords:20 }}</p>
+                    <p>{{ game.description }}</p>
                     <p class="price">${{ game.price }}</p>
-                    <!-- "Book Now" Button linking to view the game details -->
-                    <a href="{% url 'view_game' game.id %}">
-                        <button>Book Now</button>
-                    </a>
+                    <a href="{% url 'view_game' game.id %}">View Details</a>
                 </div>
             {% endfor %}
         {% else %}
-            <div class="no-games">
-                <p>No games available at the moment.</p>
-            </div>
+            <p>No games available at the moment.</p>
         {% endif %}
     </div>
 
