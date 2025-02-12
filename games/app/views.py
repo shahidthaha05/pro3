@@ -4,31 +4,34 @@ from django.contrib import messages
 from .models import Game
 from .form import GameForm
 from django.http import HttpResponse, JsonResponse
-
+from django.contrib.auth import authenticate, login
 # Admin login view
+
+
 def game_login(req):
     if 'game' in req.session:
         return redirect(home)
     
-    if req.method == 'POST':
-        uname = req.POST['uname']
-        password = req.POST['passwd']
-        user = authenticate(username=uname, password=password)
-        
-        if user:
-            if user.is_superuser:  # Check for superuser
-                login(req, user)
-                req.session['game'] = uname  # Create session for admin
+    if req.method=='POST':
+        uname=req.POST['uname']
+        password=req.POST['passwd']
+        data=authenticate(username=uname,password=password)
+        if data:
+            if data.is_superuser:
+                login(req,data)
+                req.session['game']=uname   #create session
                 return redirect(home)
             else:
-                login(req, user)
-                req.session['user'] = uname  # Create session for normal user
-                return redirect(home)
+                
+                login(req,data)
+                req.session['user']=uname   
+                return redirect(user_home)
         else:
-            messages.warning(req, 'Invalid username or password.')
+            messages.warning(req,'Invalid username or password.')
             return redirect(game_login)
     else:
-        return render(req, 'login.html')
+        return render(req,'login.html')
+    
 
 # Home page view
 def home(req):
@@ -79,7 +82,7 @@ def edit(req, gid):
         else:
             form = GameForm(instance=game)  # Pre-fill the form with existing game data
 
-        return render(req, 'admin/edit.html', {'form': form, 'game': game})
+        return render(req, 'admin/edit_game.html', {'form': form, 'game': game})
     else:
         return redirect(game_login)
 
@@ -100,35 +103,89 @@ def delete_game(req, gid):
 
 # user 
 
-# def register(req):
-#     if req.method=='POST':
-#         name=req.POST['name']
-#         email=req.POST['email']
-#         password=req.POST['password']
-#         try:
-#             data=User.objects.create_user(first_name=name,email=email,password=password,username=email)
-#             data.save()
-#             return redirect(game_login)
-#         except:
-#             messages.warning(req,'User already exists.')
-#             return redirect(register)
-#     else:
-#         return render(req,'user/register.html')
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import render, redirect
+
+def register(req):
+    if req.method == 'POST':
+        # Getting the data from the form
+        name = req.POST['name']
+        email = req.POST['email']
+        password = req.POST['password']
+
+        # Check if the user already exists based on the email
+        if User.objects.filter(email=email).exists():
+            messages.warning(req, 'A user with this email already exists.')
+            return redirect('register')  # Make sure 'register' matches the URL name for the registration page
+
+        # If the user does not exist, create the new user
+        try:
+            user = User.objects.create_user(first_name=name, email=email, password=password, username=email)
+            user.save()
+
+            # Optionally, you can create a UserProfile here if you have additional information to store
+            # UserProfile.objects.create(user=user)
+
+            messages.success(req, 'Registration successful! You can now log in.')
+            return redirect('game_login')  # Redirect to the login page after successful registration
+
+        except Exception as e:
+            # If something goes wrong, show an error message
+            messages.error(req, f'Error during registration: {e}')
+            return redirect('register')
+
+    else:
+        # Render the registration form if GET request
+        return render(req, 'user/register.html')
 
 
 
-# def user_home(req):
-#     if 'user' in req.session:
-#         data=Game.objects.all()
-#         return render(req,'user/home.html',{'data':data})
-#     else:
-#         return redirect(game_login)
+
+from django.shortcuts import render, redirect
+from .models import Game
+
+def user_home(req):
+    if 'user' in req.session:
+        # Query all games and pass them to the template
+        data = Game.objects.all()
+        return render(req, 'user/home.html', {'data': data})
+    else:
+        return redirect('game_login')
 
 
 
-# def view_game(req, pid):
-#     # Get the product by its ID
-#     product = get_object_or_404(Product, pk=pid)
 
-#     # Pass the product data to the template
-#     return render(req, 'user/view_game.html', {'data': product})
+from django.shortcuts import render, get_object_or_404
+from .models import Game
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Game, Slot  # Adjust import to match your actual models
+from django.contrib import messages
+
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from .models import Game, Slot  # Make sure you import your Game and Slot models
+
+
+
+def view_game(req, game_id):
+    game = get_object_or_404(Game, pk=game_id)
+    slots = game.slots.filter(reserved=False)  # Only show available slots
+
+    if req.method == 'POST':
+        slot_id = req.POST.get('slot_id')
+        slot = get_object_or_404(Slot, pk=slot_id, game=game)
+
+        if slot.reserved:
+            messages.error(req, "This slot is already reserved.")
+        else:
+            slot.reserved = True
+            slot.save()
+            messages.success(req, f"Slot {slot.start_time} - {slot.end_time} has been reserved.")
+            return redirect('user_home')  # Redirect after booking
+
+    return render(req, 'user/view_game.html', {'game': game, 'slots': slots})
+
+
+

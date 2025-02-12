@@ -6,7 +6,7 @@ class Game(models.Model):
     description = models.TextField()
     release_date = models.DateField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    image = models.ImageField(upload_to='game_images/')
+    image = models.FileField()
     
     def __str__(self):
         return self.title
@@ -20,4 +20,5 @@ class Slot(models.Model):
 
     def __str__(self):
         return f"{self.game.title}: {self.start_time} - {self.end_time}"
+
 

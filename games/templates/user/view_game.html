@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ game.title }} - Game Details</title>
+    <style>
+        /* Styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        h2 {
+            text-align: center;
+            padding: 20px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .game-details {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .slots-list {
+            margin-top: 20px;
+        }
+
+        .slots-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .slots-list li {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .reserved {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .available {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-link a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .back-link a:hover {
+            color: #45a049;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>{{ game.title }} - Game Details</h2>
+
+    <div class="game-details">
+        {% if game.image %}
+            <img src="{{ game.image.url }}" alt="{{ game.title }}" style="max-width: 500px; height: auto;">
+        {% else %}
+            <img src="https://via.placeholder.com/500" alt="No Image Available" style="max-width: 500px; height: auto;">
+        {% endif %}
+        
+        <h3>Description:</h3>
+        <p>{{ game.description }}</p>
+        <p><strong>Price:</strong> ${{ game.price }}</p>
+
+        <div class="slots-list">
+            <h3>Available Slots:</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <ul>
+                    {% for slot in slots %}
+                        <li>
+                            <p>{{ slot.start_time }} - {{ slot.end_time }}</p>
+                            {% if slot.reserved %}
+                                <p class="reserved">(Reserved)</p>
+                            {% else %}
+                                <p class="available">(Available)</p>
+                                <button type="submit" name="slot_id" value="{{ slot.id }}">Book Now</button>
+                            {% endif %}
+                        </li>
+                    {% empty %}
+                        <p>No slots available for this game.</p>
+                    {% endfor %}
+                </ul>
+            </form>
+        </div>
+    </div>
+
+    <div class="back-link">
+        <a href="{% url 'user_home' %}">Back to Home</a>
+    </div>
+
+</body>
+</html>
