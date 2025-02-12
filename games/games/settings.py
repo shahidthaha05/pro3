@@ -136,3 +136,13 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'shahidthaha4@gmail.com'  # Replace with your Gmail address
 EMAIL_HOST_PASSWORD = 'viwdskbdkpdlochd'  # Replace with your app password
 DEFAULT_FROM_EMAIL = 'Your App <your-email@example.com>'
+
+
+
+
+
+
+# settings.py
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Use Redis as broker
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'

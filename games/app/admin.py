@@ -12,11 +12,18 @@ class GameAdmin(admin.ModelAdmin):
     search_fields = ('title',)  # Allow searching by the game's title
     inlines = [SlotInline]  # Display Slot as inline within the Game model
 
+
+from django.contrib import admin
+from .models import Game, Slot
+
 class SlotAdmin(admin.ModelAdmin):
-    list_display = ('game', 'start_time', 'end_time', 'reserved')  # Customize columns to display for the Slot model
-    list_filter = ('game', 'reserved')  # Allow filtering slots by game and reserved status
-    search_fields = ('game__title', 'start_time', 'end_time')  # Allow searching by game title or slot times
+    list_display = ('time_slot', 'reserved')  # Display slots globally
+    list_filter = ('reserved',)  # Filter by reservation status
+    search_fields = ('time_slot',)  # Allow searching by time slot
+
+admin.site.register(Game)
+admin.site.register(Slot, SlotAdmin)
+
+
 
 # Register your models with their corresponding admin configurations
-admin.site.register(Game, GameAdmin)
-admin.site.register(Slot, SlotAdmin)

@@ -10,6 +10,16 @@
             margin: 20px;
         }
 
+        .container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
         .button {
             margin-top: 20px;
             padding: 10px 20px;
@@ -27,30 +37,62 @@
 
         .back-link {
             margin-top: 20px;
+            display: block;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
     </style>
 </head>
 <body>
 
-<h2>Booking Slots for {{ game.title }}</h2>
+<div class="container">
+    <h2>Booking Slots for {{ game.title }}</h2>
 
-<form method="POST">
-    {% csrf_token %}
-    
-    <label for="slot">Select a Slot:</label>
-    <select name="slot_id" id="slot">
-        {% for slot in available_slots %}
-            <option value="{{ slot.id }}">
-                {{ slot.start_time }} - {{ slot.end_time }}
-            </option>
+    <!-- Display messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'success' %}success{% else %}error{% endif %}">
+                {{ message }}
+            </div>
         {% endfor %}
-    </select>
+    {% endif %}
 
-    <button type="submit" class="button">Book Slot</button>
-</form>
+    {% if available_slots %}
+        <form method="POST">
+            {% csrf_token %}
 
-<div class="back-link">
-    <a href="{% url 'view_game' game_id=game.id %}">Back to Game Details</a>
+            <label for="slot">Select a Slot:</label>
+            <select name="slot_id" id="slot">
+                {% for slot in available_slots %}
+                    <option value="{{ slot.id }}">
+                        {{ slot.start_time }} - {{ slot.end_time }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="button">Book Slot</button>
+        </form>
+    {% else %}
+        <p><strong>No available slots at the moment.</strong></p>
+    {% endif %}
+
+    <a href="{% url 'user_home' %}" class="back-link">Back to Home</a>
 </div>
 
 </body>

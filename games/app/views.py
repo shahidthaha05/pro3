@@ -165,7 +165,7 @@ def user_home(req):
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import Game, Slot
-from .form import SlotBookingForm, UserDetailsForm
+from .form import SlotBookingForm
 
 
 
@@ -173,12 +173,15 @@ from django.shortcuts import render, get_object_or_404
 from .models import Game, Slot
 from django.contrib import messages
 
+from django.shortcuts import render, get_object_or_404
+from .models import Game, Slot  # Ensure Slot is imported
+
 def view_game(req, game_id):
     # Get the game object based on the game_id
     game = get_object_or_404(Game, pk=game_id)
 
-    # Get all the available slots for this game (where reserved is False)
-    available_slots = game.slots.filter(reserved=False)
+    # Get available slots by filtering slots related to this game
+    available_slots = Slot.objects.filter(game=game, reserved=False)
 
     return render(req, 'user/view_game.html', {'game': game, 'available_slots': available_slots})
 
@@ -186,26 +189,77 @@ def view_game(req, game_id):
 
 
 
+from django.utils.timezone import now
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Game, Slot
 from django.contrib import messages
+from .models import Game, Slot
 
-def booking_game(req, game_id):
+def booking_game(request, game_id):
     game = get_object_or_404(Game, pk=game_id)
-    available_slots = game.slots.filter(reserved=False)
+    
+    # Filter available slots based on booking time logic
+    available_slots = [slot for slot in game.slots.all() if slot.is_available()]
 
-    if req.method == 'POST':
-        slot_id = req.POST.get('slot_id')
+    if request.method == 'POST':
+        slot_id = request.POST.get('slot_id')
         slot = get_object_or_404(Slot, pk=slot_id, game=game)
 
-        if slot.reserved:
-            messages.error(req, "This slot is already booked.")
+        if slot.reserved and not slot.is_available():
+            messages.error(request, "This slot is temporarily unavailable. Please try later.")
         else:
-            # Mark the slot as reserved
             slot.reserved = True
+            slot.booking_time = now()  # Store booking time
             slot.save()
-            messages.success(req, f"Your slot on {slot.start_time} - {slot.end_time} has been reserved!")
-            return redirect('user_home')  # Redirect to home after booking
+            messages.success(request, f"Your slot at {slot.time_slot} has been reserved!")
+            return redirect(book_slot)
 
-    return render(req, 'user/booking_game.html', {'game': game, 'available_slots': available_slots})
+    return render(request, 'user/booking_game.html', {'game': game, 'available_slots': available_slots})
 
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.http import HttpResponse
+from django.utils.timezone import now
+from datetime import timedelta
+from .form import SlotBookingForm
+from .models import Slot
+
+def book_slot(request, slot_id=None):
+    if request.method == 'POST':
+        form = SlotBookingForm(request.POST)
+
+        if form.is_valid():
+            time_slot = form.cleaned_data['time_slot']
+
+            # Check if slot exists
+            slot = Slot.objects.filter(time_slot=time_slot).first()
+            if not slot:
+                messages.error(request, "Selected time slot does not exist.")
+                return redirect('book_slot')
+
+            # Check if slot is already booked and still within 1 hour
+            if slot.reserved and slot.booking_time and now() < slot.booking_time + timedelta(hours=1):
+                messages.error(request, "This time slot is already booked. Please choose another slot.")
+                return redirect('book_slot')
+
+            # Book the slot
+            slot.reserved = True
+            slot.booking_time = now()  # Store booking time
+            slot.save()
+
+            messages.success(request, f"Slot at {time_slot} booked successfully!")
+            return redirect('success_page')
+
+    else:
+        form = SlotBookingForm()
+
+    return render(request, 'user/book_slot.html', {'form': form})
+
+
+
+
+
+
+def success_page(request):
+    return render(request, 'user/success.html')
