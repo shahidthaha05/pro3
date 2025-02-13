@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - {{ game.title }}</title>
+</head>
+<body>
+
+<h1>Booking Confirmation for {{ game.title }}</h1>
+
+<p><strong>Name:</strong> {{ booking.name }}</p>
+<p><strong>Email:</strong> {{ booking.email }}</p>
+<p><strong>Game:</strong> {{ game.title }}</p>
+<p><strong>Slot:</strong> {{ slot.time_slot }}</p>
+<p><strong>Selected Date:</strong> {{ booking.date }}</p>
+
+<h3>Booking Details</h3>
+<p>Your slot has been successfully booked! Thank you for choosing our service.</p>
+
+<!-- Add a button to return to the game view page -->
+<a href="{% url 'view_game' game_id=game.id %}">Go back to Game</a>
+
+</body>
+</html>

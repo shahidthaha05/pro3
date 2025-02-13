@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Successful - {{ game.title }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .success-message {
+            text-align: center;
+            font-size: 18px;
+            color: green;
+        }
+
+    </style>
+</head>
+<body>
+
+<h1>Booking Successful!</h1>
+
+<p class="success-message">Your slot for {{ game.title }} has been successfully booked. Check your email for confirmation.</p>
+
+<!-- Optionally, link to view game again -->
+<a href="{% url 'view_game' game_id=game.id %}" class="button">View Game Details</a>
+
+</body>
+</html>
+
