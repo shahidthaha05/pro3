@@ -1,29 +1,38 @@
 from django.contrib import admin
-from .models import Game, Slot
+from .models import Game, Slot, SlotBooking
 
 class SlotInline(admin.TabularInline):
     model = Slot
-    extra = 1  # The number of empty slots to display by default (you can adjust this)
-    fields = ['start_time', 'end_time', 'reserved']  # Fields to display in the inline form
-    readonly_fields = ['reserved']  # Make 'reserved' read-only so it can't be manually edited in the inline form
+    extra = 1  
+    fields = ['time_slot']  # Removed 'booking_time' since it's not a field
+    readonly_fields = []  # Removed 'booking_time' from readonly
 
 class GameAdmin(admin.ModelAdmin):
-    list_display = ('title', 'release_date', 'price')  # Customize columns to display for the Game model
-    search_fields = ('title',)  # Allow searching by the game's title
-    inlines = [SlotInline]  # Display Slot as inline within the Game model
-
-
-from django.contrib import admin
-from .models import Game, Slot
+    list_display = ('title', 'release_date', 'price')  
+    search_fields = ('title',)  
+    inlines = [SlotInline]  
 
 class SlotAdmin(admin.ModelAdmin):
-    list_display = ('time_slot', 'reserved')  # Display slots globally
-    list_filter = ('reserved',)  # Filter by reservation status
-    search_fields = ('time_slot',)  # Allow searching by time slot
+    list_display = ('time_slot', 'is_available')  
+    list_filter = ('game',)  
+    search_fields = ('time_slot',)  
 
-admin.site.register(Game)
+    def is_available(self, obj):
+        """Dynamically check if a slot is available based on booking time."""
+        return obj.is_available()
+    is_available.boolean = True  
+    is_available.short_description = "Available"
+
+class SlotBookingAdmin(admin.ModelAdmin):
+    list_display = ('name', 'game', 'get_time_slot', 'date')  # Fixed 'time_slot' issue
+    list_filter = ('game', 'date')
+
+    def get_time_slot(self, obj):
+        """Fetch the time slot from related Slot object"""
+        return obj.slot.time_slot  # Make sure SlotBooking has a ForeignKey to Slot
+    get_time_slot.short_description = "Time Slot"
+
+admin.site.register(Game, GameAdmin)
 admin.site.register(Slot, SlotAdmin)
+admin.site.register(SlotBooking, SlotBookingAdmin)
 
-
-
-# Register your models with their corresponding admin configurations

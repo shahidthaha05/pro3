@@ -2,80 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ game.title }} - Game Details</title>
+    <title>{{ game.title }} - Slots</title>
     <style>
-        /* Styling for the game details page */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-        }
-
-        .game-details {
-            margin-bottom: 30px;
-        }
-
-        .game-details img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .slot-list {
-            margin-top: 30px;
-        }
-
-        .slot-item {
-            margin-bottom: 15px;
-        }
-
-        .slot-item span {
-            font-size: 16px;
-        }
-
-        .available {
-            color: green;
-            font-weight: bold;
-        }
-
-        .button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .button:hover {
-            background-color: #45a049;
-        }
-
-        .back-link {
-            margin-top: 20px;
-        }
+        .slot-list { margin-top: 20px; }
+        .slot-item { font-size: 16px; margin-bottom: 10px; }
+        .available { color: green; font-weight: bold; }
+        .booked { color: red; font-weight: bold; }
+        .button { padding: 10px 20px; background-color: #4CAF50; color: white; border: none; cursor: pointer; }
+        .button:disabled { background-color: gray; cursor: not-allowed; }
     </style>
+    <script>
+        function checkSlotAvailability() {
+            let selectedSlot = document.getElementById("slot").value;
+            let bookedSlots = JSON.parse('{{ booked_slots_json|safe }}');
+
+            if (bookedSlots.includes(selectedSlot)) {
+                alert("This time slot is already booked. Please select another.");
+                return false;
+            }
+            return true;
+        }
+    </script>
 </head>
 <body>
 
-<h2>{{ game.title }} - Game Details</h2>
+<h2>{{ game.title }} - Available Slots</h2>
 
-<div class="game-details">
-    {% if game.image %}
-        <img src="{{ game.image.url }}" alt="{{ game.title }}">
-    {% endif %}
-    <p><strong>Description:</strong> {{ game.description }}</p>
-    <p><strong>Price:</strong> ${{ game.price }}</p>
-</div>
+<!-- Date Picker -->
+<form method="GET">
+    <label for="date">Select Date:</label>
+    <input type="date" name="date" id="date" value="{{ selected_date }}" onchange="this.form.submit()">
+</form>
 
 <!-- Available Slots -->
 <div class="slot-list">
-    <h3>Available Slots:</h3>
-    {% if available_slots %}
+    <h3>Slots for {{ selected_date }}:</h3>
+    {% if available_slots or booked_slots %}
         <ul>
             {% for slot in available_slots %}
                 <li class="slot-item">
@@ -83,15 +45,21 @@
                     <span class="available">Available</span>
                 </li>
             {% endfor %}
+            {% for slot in booked_slots %}
+                <li class="slot-item">
+                    <span>{{ slot.time_slot }}</span>
+                    <span class="booked">Booked</span>
+                </li>
+            {% endfor %}
         </ul>
     {% else %}
-        <p>No available slots at the moment. Try again later.</p>
+        <p>No slots available.</p>
     {% endif %}
 </div>
 
 <!-- Booking Form -->
 {% if available_slots %}
-    <form method="POST" action="{% url 'booking_game' game_id=game.id %}">
+    <form method="POST" action="{% url 'book_slot' game_id=game.id %}" onsubmit="return checkSlotAvailability()">
         {% csrf_token %}
         <label for="slot">Select a Slot:</label>
         <select name="slot_id" id="slot" required>
@@ -99,13 +67,14 @@
                 <option value="{{ slot.id }}">{{ slot.time_slot }}</option>
             {% endfor %}
         </select>
+        <input type="hidden" name="date" value="{{ selected_date }}">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
         <button type="submit" class="button">Book Now</button>
     </form>
+{% else %}
+    <p>No available slots.</p>
 {% endif %}
-
-<div class="back-link">
-    <a href="{% url 'user_home' %}">Back to Home</a>
-</div>
 
 </body>
 </html>

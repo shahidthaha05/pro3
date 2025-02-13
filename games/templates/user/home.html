@@ -102,8 +102,8 @@
     <h2>Welcome to the Game Dashboard</h2>
 
     <div class="game-list">
-        {% if data %}
-            {% for game in data %}
+        {% if games %}
+            {% for game in games %}
                 <div class="game-item">
                     <h3>{{ game.title }}</h3>
                     <p>{{ game.description }}</p>
