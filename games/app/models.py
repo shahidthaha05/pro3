@@ -1,6 +1,6 @@
 from django.db import models
-from django.utils.timezone import now
-from datetime import date, timedelta
+from django.utils.timezone import now, timedelta
+from datetime import date
 
 class Game(models.Model):
     g_id = models.CharField(max_length=20, unique=True)
@@ -13,9 +13,6 @@ class Game(models.Model):
     def __str__(self):
         return self.title
 
-
-from django.db import models
-from django.utils.timezone import now, timedelta
 
 class Slot(models.Model):
     TIME_SLOT_CHOICES = [
@@ -53,13 +50,17 @@ class Slot(models.Model):
         return f"{self.game.title} - {self.date} - {self.time_slot} ({status})"
 
 
+from django.db import models
+from django.utils.timezone import now
 
 class SlotBooking(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
-    date = models.DateField()  # ✅ Users select a booking date (redundant `time_slot` removed)
+    date = models.DateField()
+    booking_time = models.DateTimeField(default=now)  # Manually set the default value here
 
     def __str__(self):
         return f"{self.name} - {self.game.title} on {self.date} at {self.slot.time_slot}"
+

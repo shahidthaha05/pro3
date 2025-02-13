@@ -47,23 +47,41 @@ def game_logout(req):
     logout(req)
     return redirect(game_login)
 
-# Add game view
-def add_game(req):
-    if 'game' in req.session:
-        if req.method == 'POST':
-            form = GameForm(req.POST, req.FILES)
+from datetime import datetime, timedelta
+from .models import Game, Slot
+
+def add_game(request):
+    if 'game' in request.session:
+        if request.method == 'POST':
+            form = GameForm(request.POST, request.FILES)
             if form.is_valid():
-                form.save()  # Save the game using the form
-                messages.success(req, 'Game added successfully!')
-                return redirect(home)  # Redirect to home after adding
+                game = form.save()  # Save the new game
+
+                # Automatically generate slots for the game from 10 AM to 10 PM
+                start_time = datetime.now().replace(hour=10, minute=0, second=0, microsecond=0)  # Starting from 10 AM
+                end_time = datetime.now().replace(hour=22, minute=0, second=0, microsecond=0)  # End at 10 PM
+
+                # Generate slots for every hour
+                while start_time <= end_time:
+                    Slot.objects.create(
+                        game=game,
+                        time_slot=start_time.time(),
+                        date=start_time.date(),
+                        reserved=False
+                    )
+                    start_time += timedelta(hours=1)  # Increment by 1 hour
+
+                messages.success(request, 'Game added successfully with auto-generated time slots!')
+                return redirect(home)
             else:
-                messages.error(req, 'Error adding game. Please check the form.')
+                messages.error(request, 'Error adding game. Please check the form.')
                 print(form.errors)  # Debugging: Print form errors
         else:
             form = GameForm()  # Empty form
-        return render(req, 'admin/add_game.html', {'form': form})
+        return render(request, 'admin/add_game.html', {'form': form})
     else:
         return redirect(game_login)
+
 
 # Edit game view
 def edit(req, gid):
@@ -161,27 +179,66 @@ def user_home(req):
 
 
 
-def view_game(req, game_id):
+from django.shortcuts import render, get_object_or_404, redirect
+
+
+from django.shortcuts import render, get_object_or_404
+from django.utils.timezone import now
+from .models import Game, Slot
+
+def view_game(request, game_id):
     game = get_object_or_404(Game, pk=game_id)
 
-    # Get selected date from request (default to today)
-    selected_date = req.GET.get("date", now().date())
+    # Get the selected date from the GET parameter (default to today's date)
+    selected_date = request.GET.get('date', now().date())
 
-    # Convert selected_date to date object if needed
-    from datetime import datetime
-    if isinstance(selected_date, str):
-        selected_date = datetime.strptime(selected_date, "%Y-%m-%d").date()
-
-    # Fetch available and booked slots
+    # Fetch available slots for the selected date and the game
     available_slots = Slot.objects.filter(game=game, date=selected_date, reserved=False)
-    booked_slots = Slot.objects.filter(game=game, date=selected_date, reserved=True).values_list("id", flat=True)
 
-    return render(req, 'user/view_game.html', {
+    # Fetch booked slots for the selected date (optional: to show booked slots)
+    booked_slots = Slot.objects.filter(game=game, date=selected_date, reserved=True)
+
+    # If the user has submitted the booking form, handle the booking
+    if request.method == 'POST':
+        slot_id = request.POST.get('slot_id')
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+
+        if slot_id:
+            # Check if the selected slot is already reserved
+            slot = get_object_or_404(Slot, pk=slot_id)
+            if slot.reserved:
+                messages.error(request, "This slot is already booked. Please choose another.")
+                return redirect('view_game', game_id=game.id)
+
+            # If slot is available, book the slot
+            slot.reserved = True
+            slot.booking_time = now()
+            slot.save()
+
+            # Save the booking to the SlotBooking model
+            SlotBooking.objects.create(
+                name=name,
+                email=email,
+                game=game,
+                slot=slot,
+                date=selected_date,
+            )
+
+            messages.success(request, f"Slot {slot.time_slot} booked successfully!")
+            return redirect('view_game', game_id=game.id)
+
+    # Render the page with available and booked slots
+    return render(request, 'user/view_game.html', {
         'game': game,
-        'selected_date': selected_date,
         'available_slots': available_slots,
-        'booked_slots': list(booked_slots),
+        'booked_slots': booked_slots,
+        'selected_date': selected_date,
     })
+
+
+
+
 # ✅ Booking game page - Users choose an available slot
 def booking_game(request, game_id):
     game = get_object_or_404(Game, pk=game_id)
@@ -210,27 +267,33 @@ def booking_game(request, game_id):
     return render(request, 'user/booking_game.html', {'game': game, 'available_slots': available_slots, 'selected_date': selected_date})
 
 def book_slot(request, game_id):
-    if request.method == "POST":
-        slot_id = request.POST.get("slot_id")
-        selected_date = request.POST.get("date")
-        slot = get_object_or_404(Slot, id=slot_id)
+    game = get_object_or_404(Game, id=game_id)
+    selected_slot = request.POST.get('slot_id')
+    slot = get_object_or_404(Slot, id=selected_slot)
 
-        # Check if the slot is already booked
-        if SlotBooking.objects.filter(slot=slot, date=selected_date).exists():
-            messages.error(request, "This slot is already booked for the selected date!")
-        else:
-            SlotBooking.objects.create(
-                name=request.user.username,
-                email=request.user.email,
-                game=slot.game,
-                slot=slot,
-                date=selected_date
-            )
-            slot.reserved = True
-            slot.save()
-            messages.success(request, "Slot booked successfully!")
+    if slot.reserved:
+        # Handle the case where the slot is already reserved
+        messages.error(request, 'This slot is already booked!')
+        return redirect('game_slots', game_id=game.id)
 
-    return redirect(f'/game/{game_id}/?date={selected_date}')
+    # Create SlotBooking
+    SlotBooking.objects.create(
+        name=request.POST['name'],
+        email=request.POST['email'],
+        game=game,
+        slot=slot,
+        date=request.POST['date'],
+    )
+    
+    # Mark the slot as reserved
+    slot.reserved = True
+    slot.booking_time = now()
+    slot.save()
+
+    messages.success(request, 'Your slot has been successfully booked!')
+    return redirect('game_slots', game_id=game.id)
+
+
 # ✅ Success page after booking
 def success_page(request):
     return render(request, 'user/success.html')
