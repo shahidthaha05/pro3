@@ -101,6 +101,13 @@
             color: #d9534f;
             font-size: 18px;
         }
+
+        .messages {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -108,8 +115,17 @@
 <div class="container">
     <h1>Book Slot for {{ game.title }}</h1>
 
-    <!-- Date Picker to select a date for booking -->
-    <form method="POST" action="{% url 'book_slot' game_id=game.id %}">
+    <!-- Display Django messages -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Date Picker Form -->
+    <form method="POST" action="{% url 'book_slot' game_id=game.id %}?date={{ selected_date }}">
         {% csrf_token %}
         <div class="form-group">
             <label for="date">Select a Date:</label>
@@ -119,22 +135,27 @@
         <button type="submit">Show Available Slots</button>
     </form>
 
-    <!-- Display the selected date -->
+    <!-- Display selected date and available slots -->
     {% if selected_date %}
         <div class="selected-date">
             <p><strong>Selected Date:</strong> {{ selected_date }}</p>
+        </div>
 
-        <!-- Display the available slots for the selected date -->
-        {% if available_slots %}
-            <form method="POST" action="{% url 'book_slot' game_id=game.id %}">
+        <!-- Slot Selection -->
+        {% if all_slots %}
+            <form method="POST" action="{% url 'book_slot' game_id=game.id %}?date={{ selected_date }}">
                 {% csrf_token %}
                 <input type="hidden" name="date" value="{{ selected_date }}">
 
                 <div class="form-group">
                     <label for="slot">Select a Slot:</label>
                     <select name="slot_id" id="slot" required>
-                        {% for slot in available_slots %}
-                            <option value="{{ slot.id }}">{{ slot.time_slot }}</option>
+                        {% for slot in all_slots %}
+                            {% if slot.reserved %}
+                                <option value="{{ slot.id }}" disabled>{{ slot.time_slot }} (Booked)</option>
+                            {% else %}
+                                <option value="{{ slot.id }}">{{ slot.time_slot }}</option>
+                            {% endif %}
                         {% endfor %}
                     </select>
                 </div>
@@ -159,6 +180,16 @@
 <div class="button-container">
     <a href="{% url 'user_home' %}" class="home-button">Go to User Home</a>
 </div>
+
+<!-- JavaScript to Prevent Date Reset Issue -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let dateInput = document.getElementById("date");
+        if (dateInput && dateInput.value === "") {
+            dateInput.value = new Date().toISOString().split('T')[0];
+        }
+    });
+</script>
 
 </body>
 </html>

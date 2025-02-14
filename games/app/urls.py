@@ -17,6 +17,7 @@ urlpatterns=[
         path('user_home', views.user_home, name='user_home'),
         path('game/<int:game_id>/', views.view_game, name='view_game'),
         path('game/<int:game_id>/book/', views.book_slot, name='book_slot'),
+        path('my-bookings/', views.user_bookings, name='user_bookings'),
         path('game/<int:game_id>/book/confirmation/', views.booking_confirmation, name='booking_confirmation'),
         path('game/<int:game_id>/booking-success/', views.booking_success, name='booking_success'), 
 

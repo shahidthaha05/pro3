@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Bookings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 900px;
+            margin: auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .booking-list {
+            margin-top: 20px;
+        }
+
+        .booking-item {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .booking-item:last-child {
+            border-bottom: none;
+        }
+
+        .game-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .slot-time {
+            color: #555;
+        }
+
+        .status {
+            font-weight: bold;
+            color: green;
+        }
+
+        .no-bookings {
+            text-align: center;
+            color: #d9534f;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Your Bookings</h1>
+
+    {% if user_bookings %}
+        <div class="booking-list">
+            {% for booking in user_bookings %}
+                <div class="booking-item">
+                    <p class="game-title">{{ booking.game.title }}</p>
+                    <p class="slot-time">Slot Time: {{ booking.slot.time_slot }}</p>
+                    <p>Date: {{ booking.date }}</p>
+                    <p class="status">Status: Confirmed</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-bookings">You have no bookings yet.</p>
+    {% endif %}
+</div>
+
+</body>
+</html>
+
