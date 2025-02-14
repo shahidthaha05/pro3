@@ -3,85 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Bookings</title>
+    <title>My Bookings</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
-            padding: 20px;
             margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            background-color: #4CAF50;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            margin: 0 15px;
         }
 
         .container {
             width: 80%;
             max-width: 900px;
-            margin: auto;
-            background-color: white;
+            margin: 20px auto;
+            background: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
+        h2 {
             text-align: center;
             color: #333;
         }
 
-        .booking-list {
+        table {
+            width: 100%;
+            border-collapse: collapse;
             margin-top: 20px;
         }
 
-        .booking-item {
-            padding: 15px;
+        th, td {
+            padding: 10px;
+            text-align: left;
             border-bottom: 1px solid #ddd;
         }
 
-        .booking-item:last-child {
-            border-bottom: none;
+        th {
+            background-color: #4CAF50;
+            color: white;
         }
 
-        .game-title {
-            font-size: 18px;
-            font-weight: bold;
+        .cancel-btn {
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        .slot-time {
-            color: #555;
-        }
-
-        .status {
-            font-weight: bold;
-            color: green;
+        .cancel-btn:hover {
+            background-color: #c9302c;
         }
 
         .no-bookings {
             text-align: center;
-            color: #d9534f;
+            color: red;
             font-size: 18px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Your Bookings</h1>
+    <!-- Navbar -->
+    <div class="navbar">
+        <a href="{% url 'user_home' %}">Home</a>
+        <a href="{% url 'user_bookings' %}">My Bookings</a>
+        <a href="{% url 'game_logout' %}">Logout</a>
+    </div>
 
-    {% if user_bookings %}
-        <div class="booking-list">
-            {% for booking in user_bookings %}
-                <div class="booking-item">
-                    <p class="game-title">{{ booking.game.title }}</p>
-                    <p class="slot-time">Slot Time: {{ booking.slot.time_slot }}</p>
-                    <p>Date: {{ booking.date }}</p>
-                    <p class="status">Status: Confirmed</p>
-                </div>
-            {% endfor %}
-        </div>
-    {% else %}
-        <p class="no-bookings">You have no bookings yet.</p>
-    {% endif %}
-</div>
+    <div class="container">
+        <h2>My Bookings</h2>
+
+        {% if bookings %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Game</th>
+                        <th>Date</th>
+                        <th>Slot</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.game.title }}</td>
+                        <td>{{ booking.date }}</td>
+                        <td>{{ booking.slot.time_slot }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'cancel_booking' booking.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="cancel-btn">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-bookings">You have no bookings yet.</p>
+        {% endif %}
+    </div>
 
 </body>
 </html>
-

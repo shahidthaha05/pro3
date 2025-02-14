@@ -270,15 +270,46 @@ def book_slot(request, game_id):
 
 
 
-
-from django.shortcuts import render
-from .models import SlotBooking
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import SlotBooking, Slot
 
 def user_bookings(request):
-    user_email = request.user.email  # Assuming users book slots using their email
-    user_bookings = SlotBooking.objects.filter(email=user_email).select_related('game', 'slot')
+    if not request.user.is_authenticated:
+        messages.error(request, "Please log in to view your bookings.")
+        return redirect('login')
 
-    return render(request, 'user/view_bookings.html', {'user_bookings': user_bookings})
+    # Fetch all bookings of the logged-in user
+    bookings = SlotBooking.objects.filter(email=request.user.email).order_by('-date')
+
+    return render(request, 'user/view_bookings.html', {'bookings': bookings})
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import SlotBooking, Slot
+
+def cancel_booking(request, booking_id):
+    booking = get_object_or_404(SlotBooking, id=booking_id)
+
+    if booking.email != request.user.email:
+        messages.error(request, "You can only cancel your own bookings.")
+        return redirect('user_bookings')
+
+    # Free up the slot
+    slot = booking.slot
+    slot.reserved = False
+    slot.save()
+
+    # Delete the booking
+    booking.delete()
+
+    messages.success(request, "Your booking has been canceled, and the slot is now available.")
+    return redirect('user_bookings')
+
+
+
+
 
 
 
