@@ -5,45 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
     <style>
-        /* Basic styling for the registration form */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #1f1f1f; /* Fallback for unsupported images */
+            background-image: url('/static/Fixed_Aspect_Ratio_Image__1_.jpg'); /* Add the background image URL here */
+            background-size: cover; /* Make sure the image covers the entire screen */
+            background-position: center center; /* Center the image */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         .container {
             max-width: 400px;
-            margin: 50px auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            background-color: rgba(42, 42, 42, 0.8); /* Semi-transparent dark background */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            color: #f5f5f5;
         }
 
         h2 {
             text-align: center;
-            color: #333;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f5f5f5;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ccc;
         }
 
         input[type="text"], input[type="email"], input[type="password"] {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background-color: #333;
+            color: #fff;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+            border-color: #4CAF50; /* Green color on focus */
+            background-color: #444;
+            outline: none;
         }
 
         button {
             width: 100%;
-            padding: 10px;
+            padding: 15px;
             background-color: #4CAF50;
             color: white;
-            border: none;
-            border-radius: 5px;
             font-size: 16px;
+            border: none;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
         }
 
         button:hover {
@@ -52,17 +85,47 @@
 
         .message {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px;
             font-size: 14px;
+            color: #ccc;
         }
 
         .message a {
             color: #4CAF50;
             text-decoration: none;
+            font-weight: bold;
         }
 
         .message a:hover {
             text-decoration: underline;
+        }
+
+        .alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Media Queries for responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            input[type="text"], input[type="email"], input[type="password"] {
+                font-size: 14px;
+            }
+
+            button {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -73,7 +136,7 @@
 
         <!-- Display messages -->
         {% if messages %}
-            <div class="message">
+            <div class="alert">
                 <ul>
                     {% for message in messages %}
                         <li>{{ message }}</li>
