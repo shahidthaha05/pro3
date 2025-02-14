@@ -215,11 +215,6 @@ def view_game(request, game_id):
 
 
 
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from datetime import datetime
-from .models import Game, Slot, SlotBooking
-
 def book_slot(request, game_id):
     game = get_object_or_404(Game, id=game_id)
     selected_date = request.POST.get('date') or request.GET.get('date')
@@ -234,7 +229,7 @@ def book_slot(request, game_id):
         messages.error(request, 'Invalid date format. Please select a valid date.')
         return redirect('book_slot', game_id=game.id)
 
-    # **Get ALL slots for the selected date** (both booked and available)
+    # Get all slots for the selected date (both booked and available)
     all_slots = Slot.objects.filter(game=game, date=selected_date_obj)
 
     if request.method == 'POST' and 'slot_id' in request.POST:
@@ -245,13 +240,14 @@ def book_slot(request, game_id):
             messages.error(request, 'This slot is already booked. Please select another slot.')
             return redirect(f"{request.path}?date={selected_date}")
 
-        # Create a booking
+        # Create a booking and associate it with the logged-in user
         SlotBooking.objects.create(
+            user=request.user,  # Link the booking to the logged-in user
             name=request.POST['name'],
             email=request.POST['email'],
             game=game,
             slot=slot,
-            date=selected_date_obj,
+            date=selected_date_obj
         )
 
         slot.reserved = True
@@ -261,28 +257,40 @@ def book_slot(request, game_id):
         return redirect('booking_confirmation', game_id=game.id)
 
     return render(request, 'user/book_slot.html', {
-        'game': game,
+        'game': game,  # Ensure the game is passed to the template
         'selected_date': selected_date,
-        'all_slots': all_slots,  # Pass all slots (both booked and available)
+        'all_slots': all_slots,
     })
 
 
 
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import SlotBooking
+
+@login_required
+def my_bookings(request):
+    # Fetch bookings only for the logged-in user
+    bookings = SlotBooking.objects.filter(user=request.user)
+
+    return render(request, 'user/my_bookings.html', {'bookings': bookings})
 
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from .models import SlotBooking, Slot
 
-def user_bookings(request):
-    if not request.user.is_authenticated:
-        messages.error(request, "Please log in to view your bookings.")
-        return redirect('login')
+from django.shortcuts import render, redirect
+from .models import SlotBooking
 
-    # Fetch all bookings of the logged-in user
-    bookings = SlotBooking.objects.filter(email=request.user.email).order_by('-date')
+def booking_confirmation(request, game_id):
+    booking = SlotBooking.objects.latest('id')  # Get the most recent booking
+    game = booking.game
+    booking_date = booking.date
+    return render(request, 'user/booking_confirmation.html', {
+        'game': game,
+        'booking_date': booking_date,
+    })
 
-    return render(request, 'user/view_bookings.html', {'bookings': bookings})
+
+
 
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -309,30 +317,3 @@ def cancel_booking(request, booking_id):
 
 
 
-
-
-
-
-
-def booking_confirmation(request, game_id):
-    # Retrieve the booking details from the session
-    booking_id = request.session.get('booking_id')
-    if not booking_id:
-        return redirect('home')  # If no booking found, redirect to home
-
-    booking = get_object_or_404(SlotBooking, id=booking_id)
-    game = booking.game
-    slot = booking.slot
-
-    return render(request, 'user/booking_confirmation.html', {
-        'booking': booking,
-        'game': game,
-        'slot': slot,
-    })
-
-
-
-
-def booking_success(request, game_id):
-    game = get_object_or_404(Game, id=game_id)
-    return render(request, 'user/booking_success.html', {'game': game})

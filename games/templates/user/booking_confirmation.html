@@ -3,23 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Confirmation - {{ game.title }}</title>
+    <title>Booking Confirmation</title>
+    <style>
+        /* Reset and general styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 40px;
+        }
+
+        .confirmation-message strong {
+            color: #0056b3;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .home-button {
+            background-color: #008CBA;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 200px;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .home-button:hover {
+            background-color: #006f8f;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
 
-<h1>Booking Confirmation for {{ game.title }}</h1>
+<div class="container">
+    <h1>Booking Confirmed!</h1>
 
-<p><strong>Name:</strong> {{ booking.name }}</p>
-<p><strong>Email:</strong> {{ booking.email }}</p>
-<p><strong>Game:</strong> {{ game.title }}</p>
-<p><strong>Slot:</strong> {{ slot.time_slot }}</p>
-<p><strong>Selected Date:</strong> {{ booking.date }}</p>
+    <p class="confirmation-message">Thank you for booking your slot for <strong>{{ game.title }}</strong> on <strong>{{ booking_date }}</strong>.</p>
 
-<h3>Booking Details</h3>
-<p>Your slot has been successfully booked! Thank you for choosing our service.</p>
-
-<!-- Add a button to return to the game view page -->
-<a href="{% url 'view_game' game_id=game.id %}">Go back to Game</a>
+    <div class="button-container">
+        <a href="{% url 'my_bookings' %}" class="home-button">View My Bookings</a>
+    </div>
+</div>
 
 </body>
 </html>

@@ -16,11 +16,11 @@ urlpatterns=[
         path('register/', views.register, name='register'),
         path('user_home', views.user_home, name='user_home'),
         path('game/<int:game_id>/', views.view_game, name='view_game'),
-        path('game/<int:game_id>/book/', views.book_slot, name='book_slot'),
-        path('user/bookings/', views.user_bookings, name='user_bookings'),
+        path('book-slot/<int:game_id>/', views.book_slot, name='book_slot'),
+        path('booking-confirmation/<int:game_id>/', views.booking_confirmation, name='booking_confirmation'),
+        path('my-bookings/', views.my_bookings, name='my_bookings'),
         path('cancel_booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
-        path('game/<int:game_id>/book/confirmation/', views.booking_confirmation, name='booking_confirmation'),
-        path('game/<int:game_id>/booking-success/', views.booking_success, name='booking_success'), 
+        
 
 
 ]

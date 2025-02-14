@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Bookings</title>
+    <style>
+        /* Reset and general styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 900px;
+            margin: 40px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        li strong {
+            color: #333;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .home-button, .book-button {
+            background-color: #008CBA;
+            color: white;
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 200px;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .home-button:hover, .book-button:hover {
+            background-color: #006f8f;
+        }
+
+        .no-bookings {
+            text-align: center;
+            color: #d9534f;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Your Bookings</h1>
+
+    <!-- If the user has bookings -->
+    {% if bookings %}
+        <ul>
+            {% for booking in bookings %}
+                <li>
+                    <strong>Game:</strong> {{ booking.game.title }} <br>
+                    <strong>Date:</strong> {{ booking.date }} <br>
+                    <strong>Slot:</strong> {{ booking.slot.time_slot }} <br>
+                    
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="no-bookings">You have no bookings yet. Please make a booking!</p>
+    {% endif %}
+    
+    <div class="button-container">
+        {% if game and game.id %}
+            <a href="{% url 'book_slot' game_id=game.id %}" class="book-button">Book a Slot</a>
+        {% else %}
+            
+        {% endif %}
+        
+        <!-- Add Home Button -->
+        <a href="{% url 'user_home' %}" class="home-button">Go to User Home</a>
+    </div>
+    
+</div>
+
+</body>
+</html>

@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.timezone import now, timedelta
 from datetime import date
+from django.contrib.auth.models import User
 
 class Game(models.Model):
     g_id = models.CharField(max_length=20, unique=True)
@@ -50,17 +51,22 @@ class Slot(models.Model):
         return f"{self.game.title} - {self.date} - {self.time_slot} ({status})"
 
 
-from django.db import models
-from django.utils.timezone import now
+from django.contrib.auth.models import User
+
+from django.contrib.auth.models import User
 
 class SlotBooking(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Link to user
     name = models.CharField(max_length=100)
     email = models.EmailField()
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE)
     date = models.DateField()
-    booking_time = models.DateTimeField(default=now)  # Manually set the default value here
+    booking_time = models.DateTimeField(default=now)
 
     def __str__(self):
         return f"{self.name} - {self.game.title} on {self.date} at {self.slot.time_slot}"
+
+
+
 
