@@ -139,6 +139,38 @@ def admin_bookings(request):
 
 
 
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+from .models import SlotBooking, Slot
+
+def delete_booking(request, booking_id):
+    if not request.user.is_staff:
+        messages.error(request, "You do not have permission to perform this action.")
+        return redirect('admin_bookings')  # Redirect back to the bookings page.
+
+    booking = get_object_or_404(SlotBooking, id=booking_id)
+    slot = booking.slot
+
+    # Delete the booking
+    booking.delete()
+
+    # Check if there are other bookings for this slot and mark it as available if no other bookings are present
+    if not SlotBooking.objects.filter(slot=slot).exists():
+        slot.reserved = False
+        slot.save()
+
+    messages.success(request, "Booking has been deleted successfully.")
+    return redirect('admin_bookings')  # Redirect back to the bookings page
+
+
+
+
+
+
+
+
+
+
 # user 
 
 from django.contrib.auth.models import User
@@ -293,18 +325,20 @@ def booking_confirmation(request, game_id):
 
 
 
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .models import SlotBooking, Slot
 
 def cancel_booking(request, booking_id):
+    # Get the booking by ID
     booking = get_object_or_404(SlotBooking, id=booking_id)
-
-    if booking.email != request.user.email:
-        messages.error(request, "You can only cancel your own bookings.")
-        return redirect('user_bookings')
-
-    # Free up the slot
+    
+    # Ensure the logged-in user is the one who made the booking
+    if booking.user != request.user:
+        messages.error(request, "You can't cancel someone else's booking.")
+        return redirect('my_bookings')
+    
+    # Mark the slot as available again
     slot = booking.slot
     slot.reserved = False
     slot.save()
@@ -312,8 +346,12 @@ def cancel_booking(request, booking_id):
     # Delete the booking
     booking.delete()
 
-    messages.success(request, "Your booking has been canceled, and the slot is now available.")
-    return redirect('user_bookings')
+    # Success message
+    messages.success(request, "Your booking has been canceled successfully. The slot is now available.")
+    
+    # Redirect to the booking page
+    return redirect('my_bookings')
+
 
 
 

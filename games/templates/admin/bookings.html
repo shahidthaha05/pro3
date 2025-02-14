@@ -90,6 +90,22 @@
             color: #0056b3;
         }
 
+        /* Delete Button */
+        .delete-button {
+            background-color: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             table {
@@ -118,6 +134,16 @@
     <h2>Admin Bookings</h2>
     <a href="{% url 'home' %}" class="logout">Back to Dashboard</a>
 
+    <!-- Success/Error messages -->
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Table of Bookings -->
     <table>
         <thead>
             <tr>
@@ -138,8 +164,10 @@
                     <td>{{ booking.slot.time_slot }}</td>
                     <td>{{ booking.date }}</td>
                     <td class="actions">
-                        <a href="#">View Details</a> | 
-                        <a href="#">Delete</a>
+                        <form method="POST" action="{% url 'delete_booking' booking_id=booking.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="delete-button">Delete</button>
+                        </form>                        
                     </td>
                 </tr>
             {% empty %}

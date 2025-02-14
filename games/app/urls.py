@@ -10,6 +10,7 @@ urlpatterns=[
         path('edit/<gid>',views.edit,name='edit'),
         path('delete_game/<gid>',views.delete_game,name='delete_game'),
         path('adminbookings/', views.admin_bookings, name='admin_bookings'),
+        path('delete-booking/<int:booking_id>/', views.delete_booking, name='delete_booking'),
 
 
 
@@ -19,7 +20,7 @@ urlpatterns=[
         path('book-slot/<int:game_id>/', views.book_slot, name='book_slot'),
         path('booking-confirmation/<int:game_id>/', views.booking_confirmation, name='booking_confirmation'),
         path('my-bookings/', views.my_bookings, name='my_bookings'),
-        path('cancel_booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
+        path('cancel-booking/<int:booking_id>/', views.cancel_booking, name='cancel_booking'),
         
 
 
