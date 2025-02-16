@@ -5,85 +5,161 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ game.title }} - Available Slots</title>
     <style>
-        /* General Reset */
+        /* Reset Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* Body */
         body {
             font-family: 'Arial', sans-serif;
             background-color: #181818;
             color: #eaeaea;
             line-height: 1.6;
-            padding: 20px;
+            text-align: center;
+            padding-top: 60px; /* Prevents content from being hidden under navbar */
+        }
+
+        /* ✅ FIXED NAVBAR */
+        .navbar {
+            background-color: #000;
+            padding: 10px 15px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff4c4c;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        /* ✅ MOBILE NAVBAR */
+        .menu-toggle {
+            display: none;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                position: absolute;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                background: #111;
+                padding: 10px 0;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .nav-links a {
+                padding: 10px;
+                text-align: center;
+                display: block;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Content */
+        .content {
+            width: 90%;
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
         }
 
         h1 {
-            text-align: center;
+            font-size: 26px;
+            text-transform: uppercase;
             color: #f1f1f1;
             margin-bottom: 20px;
-            font-size: 36px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .game-details {
             background-color: #2a2a2a;
-            padding: 30px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-            max-width: 900px;
-            width: 100%;
             text-align: center;
             margin-bottom: 20px;
         }
 
         .game-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             color: #ff4c4c;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .game-description {
-            font-size: 18px;
+            font-size: 16px;
             color: #ccc;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             text-align: justify;
         }
 
         .game-image {
             width: 100%;
-            height: auto;
+            max-width: 400px;
             border-radius: 8px;
-            margin-bottom: 20px;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
+            margin-bottom: 15px;
         }
 
         .game-price, .game-rating {
             font-size: 18px;
             color: #f5f5f5;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Buttons */
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 15px;
         }
 
         .button {
             display: inline-block;
             background-color: #ff4c4c;
             color: white;
-            padding: 15px 30px;
-            font-size: 18px;
+            padding: 10px 20px;
+            font-size: 16px;
             border-radius: 8px;
             text-decoration: none;
-            text-align: center;
-            margin-top: 20px;
             transition: background-color 0.3s ease;
         }
 
@@ -91,38 +167,37 @@
             background-color: #e43d3d;
         }
 
-        /* Responsive Design */
+        /* Mobile Fixes */
         @media (max-width: 768px) {
             h1 {
-                font-size: 30px;
-            }
-
-            .game-details {
-                padding: 20px;
-                width: 95%;
+                font-size: 22px;
             }
 
             .game-title {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             .game-description {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             .game-image {
-                max-width: 80%;
+                max-width: 100%;
             }
 
             .button {
-                font-size: 16px;
-                padding: 12px 25px;
+                font-size: 14px;
+                padding: 8px 15px;
             }
         }
 
         @media (max-width: 480px) {
+            h1 {
+                font-size: 18px;
+            }
+
             .game-title {
-                font-size: 22px;
+                font-size: 18px;
             }
 
             .game-description {
@@ -130,38 +205,61 @@
             }
 
             .button {
-                font-size: 14px;
-                padding: 10px 20px;
+                font-size: 12px;
+                padding: 6px 12px;
             }
         }
     </style>
 </head>
 <body>
 
-<h1>{{ game.title }} - Game Details</h1>
+<!-- 🔹 Fixed Navbar -->
+<nav class="navbar">
+    <a href="{% url 'user_home' %}" class="logo">Game Hub</a>
+    <span class="menu-toggle" onclick="toggleMenu()">☰</span>
+    <div class="nav-links">
+        <a href="{% url 'user_home' %}">Home</a>
+        <a href="{% url 'my_bookings' %}">Bookings</a>
+        <a href="{% url 'game_logout' %}">Logout</a>
+    </div>
+</nav>
 
-<div class="game-details">
-    <p class="game-title">{{ game.title }}</p>
-    <p class="game-description">{{ game.description }}</p>
+<!-- 🔹 Content Section -->
+<div class="content">
+    <h1>{{ game.title }} - Game Details</h1>
 
-    <!-- Display Game Image -->
-    {% if game.image %}
-        <img src="{{ game.image.url }}" alt="{{ game.title }} Image" class="game-image">
-    {% else %}
-        <p>No image available for this game.</p>
-    {% endif %}
+    <div class="game-details">
+        <p class="game-title">{{ game.title }}</p>
+        <p class="game-description">{{ game.description }}</p>
 
-    <!-- Add other details if needed, like price, ratings, etc. -->
-    {% if game.price %}
-        <p class="game-price">Price: ${{ game.price }}</p>
-    {% endif %}
-    {% if game.rating %}
-        <p class="game-rating">Rating: {{ game.rating }} / 5</p>
-    {% endif %}
+        <!-- Game Image -->
+        {% if game.image %}
+            <img src="{{ game.image.url }}" alt="{{ game.title }} Image" class="game-image">
+        {% else %}
+            <p>No image available for this game.</p>
+        {% endif %}
+
+        {% if game.price %}
+            <p class="game-price">Price: ${{ game.price }}</p>
+        {% endif %}
+        {% if game.rating %}
+            <p class="game-rating">Rating: {{ game.rating }} / 5</p>
+        {% endif %}
+    </div>
+
+    <!-- Buttons -->
+    <div class="button-container">
+        
+        <a href="{% url 'book_slot' game_id=game.id %}" class="button">Check Available Slots</a>
+    </div>
 </div>
 
-<!-- Button to go to the booking page -->
-<a href="{% url 'book_slot' game_id=game.id %}" class="button">Check Available Slots</a>
+<!-- 🔹 JavaScript for Mobile Menu -->
+<script>
+    function toggleMenu() {
+        document.querySelector(".nav-links").classList.toggle("active");
+    }
+</script>
 
 </body>
 </html>

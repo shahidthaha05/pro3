@@ -247,21 +247,34 @@ def view_game(request, game_id):
 
 
 
+from django.utils.timezone import now
+from datetime import datetime
+
 def book_slot(request, game_id):
     game = get_object_or_404(Game, id=game_id)
     selected_date = request.POST.get('date') or request.GET.get('date')
 
-    # Set default date if no date is selected
-    if not selected_date:
-        selected_date = datetime.now().strftime('%Y-%m-%d')
-    
-    try:
-        selected_date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
-    except ValueError:
-        messages.error(request, 'Invalid date format. Please select a valid date.')
-        return redirect('book_slot', game_id=game.id)
+    today = now().date()  # Get today's date
 
-    # Get all slots for the selected date (both booked and available)
+    if selected_date:
+        try:
+            selected_date_obj = datetime.strptime(selected_date, '%Y-%m-%d').date()
+
+            # If selected date is in the past, show an error and keep the date in the field
+            if selected_date_obj < today:
+                messages.error(request, 'You cannot book past dates. Please select today or a future date.')
+                return render(request, 'user/book_slot.html', {
+                    'game': game,
+                    'selected_date': selected_date,  # Keep the user's selected date in the field
+                    'all_slots': [],
+                })
+        except ValueError:
+            messages.error(request, 'Invalid date format. Please select a valid date.')
+            return redirect('book_slot', game_id=game.id)
+    else:
+        selected_date_obj = today  # Default to today if no date is provided
+
+    # Fetch only available slots for the valid date
     all_slots = Slot.objects.filter(game=game, date=selected_date_obj)
 
     if request.method == 'POST' and 'slot_id' in request.POST:
@@ -272,9 +285,9 @@ def book_slot(request, game_id):
             messages.error(request, 'This slot is already booked. Please select another slot.')
             return redirect(f"{request.path}?date={selected_date}")
 
-        # Create a booking and associate it with the logged-in user
+        # Create a booking
         SlotBooking.objects.create(
-            user=request.user,  # Link the booking to the logged-in user
+            user=request.user,
             name=request.POST['name'],
             email=request.POST['email'],
             game=game,
@@ -289,10 +302,11 @@ def book_slot(request, game_id):
         return redirect('booking_confirmation', game_id=game.id)
 
     return render(request, 'user/book_slot.html', {
-        'game': game,  # Ensure the game is passed to the template
-        'selected_date': selected_date,
+        'game': game,
+        'selected_date': selected_date,  # Ensure selected date stays in the input field
         'all_slots': all_slots,
     })
+
 
 
 

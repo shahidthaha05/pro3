@@ -13,18 +13,19 @@
     }
 
     body {
-      background-color: #181818; /* Dark background for a gaming theme */
-      background-image: url('../static/Fixed_Aspect_Ratio_Image__1_.jpg'); /* Add the image URL here */
-      background-size: cover; /* Makes sure the image covers the whole page */
-      background-position: center center; /* Centers the image */
+      background-color: #181818;
+      background-image: url('../static/Fixed_Aspect_Ratio_Image__1_.jpg');
+      background-size: cover;
+      background-position: center;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
+      padding: 20px;
     }
 
     .login-container {
-      background-color: rgba(28, 28, 28, 0.9); /* Dark semi-transparent background */
+      background-color: rgba(28, 28, 28, 0.9);
       padding: 50px 40px;
       border-radius: 12px;
       width: 100%;
@@ -35,18 +36,19 @@
 
     h2 {
       font-size: 2rem;
-      color: #eaeaea; /* Light grey text color */
+      color: #eaeaea;
       margin-bottom: 20px;
       font-weight: 700;
     }
 
     .input-group {
-      margin-bottom: 25px;
+      margin-bottom: 20px;
+      text-align: left;
     }
 
     .input-group label {
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       color: #eaeaea;
       font-size: 14px;
       font-weight: 600;
@@ -54,7 +56,7 @@
 
     .input-group input {
       width: 100%;
-      padding: 15px;
+      padding: 12px;
       border: 1px solid #444;
       border-radius: 8px;
       font-size: 16px;
@@ -65,7 +67,7 @@
 
     .input-group input:focus {
       outline: none;
-      border-color: #ff4c4c; /* Red border on focus */
+      border-color: #ff4c4c;
       background-color: #444;
     }
 
@@ -82,11 +84,11 @@
     }
 
     .login-btn:hover {
-      background-color: #d43f3f; /* Slightly darker red on hover */
+      background-color: #d43f3f;
     }
 
     .footer {
-      margin-top: 25px;
+      margin-top: 20px;
       font-size: 14px;
       color: #b0b0b0;
     }
@@ -101,7 +103,6 @@
       text-decoration: underline;
     }
 
-    /* Alerts */
     .alert {
       background-color: #ff4c4c;
       color: white;
@@ -110,6 +111,26 @@
       border-radius: 8px;
       font-size: 14px;
       font-weight: 600;
+    }
+
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 30px 20px;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .input-group input {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .login-btn {
+        padding: 12px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
@@ -122,7 +143,7 @@
 
       <div class="input-group">
         <label for="uname">Email Address</label>
-        <input type="email" id="uname" name="uname" required>
+        <input type="text" id="uname" name="uname" required>
       </div>
 
       <div class="input-group">

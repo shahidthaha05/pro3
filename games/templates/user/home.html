@@ -14,154 +14,178 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background-image: url('/static/2.jpeg'); /* Background for the entire page */
+            background-image: url('/static/2.jpeg');
             background-size: cover;
             background-position: center center;
-            background-attachment: fixed; /* Keeps background fixed when scrolling */
-            color: #333;
+            background-attachment: fixed;
+            color: #fff;
             line-height: 1.6;
-            padding: 20px;
+            padding-top: 60px;
         }
 
-        /* Transparent Navbar */
+        /* Navbar Styling */
         .navbar {
-            background-color: rgba(0, 0, 0, 0.6); /* Transparent black background */
+            background-color: rgba(0, 0, 0, 0.9);
             padding: 15px 20px;
-            text-align: center;
-            position: absolute;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
             top: 0;
+            left: 0;
             width: 100%;
+            height: 60px;
             z-index: 1000;
-        }
-
-        .navbar a {
-            text-decoration: none;
-            color: white;
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin: 0 15px;
-            transition: color 0.3s ease;
-        }
-
-        .navbar a:hover {
-            color: #dff0d8; /* Light green on hover */
         }
 
         .navbar .logo {
             font-size: 1.5rem;
             font-weight: bold;
+            color: #ff4c4c;
+            text-decoration: none;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
             color: white;
-            margin-bottom: 15px;
-            display: block;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #dff0d8;
+        }
+
+        /* Hamburger Menu */
+        .menu-toggle {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                text-align: center;
+                background-color: rgba(0, 0, 0, 0.9);
+                position: absolute;
+                top: 60px;
+                left: 0;
+                padding: 10px 0;
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
         }
 
         /* Game List Styles */
         h2 {
             text-align: center;
             padding: 20px;
-            margin-top: 20px;
-            color: #333;
+            font-size: 2rem;
+            text-transform: uppercase;
+            color: #ffeb3b;
         }
 
         .game-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
+            gap: 20px;
             padding: 40px;
-            border-radius: 10px;
         }
 
         .game-item {
             position: relative;
-            height: 200px;
+            height: 220px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .game-item:hover {
             transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.5);
         }
 
         .game-item img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Ensures the image covers the entire area */
+            object-fit: cover;
         }
 
-        /* Footer Link Styling */
-        .back-link {
+        .game-title {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
             text-align: center;
-            margin-top: 30px;
-        }
-
-        .back-link a {
-            text-decoration: none;
-            color: #4CAF50;
+            padding: 10px;
+            font-size: 1.1rem;
             font-weight: bold;
-            font-size: 1rem;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
         }
 
-        .back-link a:hover {
-            color: #45a049;
-            text-decoration: underline;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .game-list {
-                padding: 20px;
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .game-item {
-                height: 180px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .game-list {
-                grid-template-columns: 1fr;
-            }
-
-            h2 {
-                font-size: 1.5rem;
-            }
-
-            .game-item {
-                height: 150px;
-            }
+        .game-item:hover .game-title {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
 
-    <!-- Transparent Navbar -->
-    <div class="navbar">
-        <a href="{% url 'user_home' %}" class="logo">Game Dashboard</a>
+<!-- Navbar with Hamburger Menu -->
+<nav class="navbar">
+    <a href="{% url 'user_home' %}" class="logo">Game Hub</a>
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+    <div class="nav-links">
         <a href="{% url 'user_home' %}">Home</a>
         <a href="{% url 'my_bookings' %}">My Bookings</a>
         <a href="{% url 'game_logout' %}">Logout</a>
     </div>
+</nav>
 
-    <h2>Game Gallery</h2>
+<h2>Game Gallery</h2>
 
-    <!-- Game List with Images Only -->
-    <div class="game-list">
-        {% if games %}
-            {% for game in games %}
-                <div class="game-item">
-                    <a href="{% url 'view_game' game.id %}">
-                        <img src="{{ game.image.url }}" alt="{{ game.title }}">
-                    </a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No games available at the moment.</p>
-        {% endif %}
-    </div>
+<!-- Game List with Titles Displayed on Hover -->
+<div class="game-list">
+    {% if games %}
+        {% for game in games %}
+            <div class="game-item">
+                <a href="{% url 'view_game' game.id %}">
+                    <img src="{{ game.image.url }}" alt="{{ game.title }}">
+                    <div class="game-title">{{ game.title }}</div>
+                </a>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p style="text-align: center; font-size: 1.2rem; color: #ff4c4c;">No games available at the moment.</p>
+    {% endif %}
+</div>
+
+<script>
+    function toggleMenu() {
+        const navLinks = document.querySelector(".nav-links");
+        navLinks.classList.toggle("active");
+    }
+</script>
 
 </body>
 </html>
+
