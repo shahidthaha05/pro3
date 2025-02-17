@@ -169,6 +169,34 @@ def delete_booking(request, booking_id):
 
 
 
+from django.urls import reverse_lazy
+from django.contrib.auth.views import (
+    PasswordResetView, 
+    PasswordResetDoneView, 
+    PasswordResetConfirmView, 
+    PasswordResetCompleteView
+)
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'pass_reset.html'
+    email_template_name = 'pass_reset_email.html'
+    subject_template_name = 'pass_reset_subject.txt'
+    success_url = reverse_lazy('pass_reset_done')
+
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'pass_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'pass_reset_confirm.html'
+    success_url = reverse_lazy('pass_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'pass_reset_complete.html'
+
+
+
+
 
 
 # user 

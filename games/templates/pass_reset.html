@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #181818; /* Dark background */
+            color: #eaeaea; /* Light text color for contrast */
+            font-size: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: rgba(28, 28, 28, 0.9); /* Dark background for the form */
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            background-color: #ff4c4c; /* Red header */
+            color: white;
+            padding: 20px;
+            border-radius: 8px 8px 0 0;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .message {
+            font-size: 1rem;
+            color: #eaeaea;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .form-container {
+            margin-top: 20px;
+        }
+
+        .form-container label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #eaeaea;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .form-container input {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            font-size: 16px;
+            background-color: #333;
+            color: #fff;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-container input:focus {
+            border-color: #ff4c4c; /* Red border on focus */
+            outline: none;
+        }
+
+        .form-container button {
+            width: 100%;
+            padding: 15px;
+            background-color: #ff4c4c; /* Red button */
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .form-container button:hover {
+            background-color: #d43f3f; /* Darker red on hover */
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: #ff4c4c; /* Red link */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .message {
+                font-size: 14px;
+            }
+
+            .form-container input {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            .form-container button {
+                padding: 14px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .message {
+                font-size: 12px;
+            }
+
+            .form-container input {
+                padding: 10px;
+                font-size: 12px;
+            }
+
+            .form-container button {
+                padding: 12px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Forgot Your Password?</h1>
+    </div>
+
+    <div class="message">
+        <p>Enter your email address below, and we'll send you instructions to reset your password.</p>
+    </div>
+
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <label for="id_email">Email Address</label>
+                {{ form.email }}
+            </div>
+            <button type="submit">Send Reset Link</button>
+        </form>
+    </div>
+
+    <div class="footer">
+        <p><a href="{% url 'game_login' %}">Back to Login</a></p>
+    </div>
+</div>
+
+</body>
+</html>

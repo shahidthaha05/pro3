@@ -1,5 +1,11 @@
 from django.urls import path
 from . import views
+from .views import (
+    CustomPasswordResetView,
+    CustomPasswordResetDoneView,
+    CustomPasswordResetConfirmView,
+    CustomPasswordResetCompleteView,
+)
 
 
 urlpatterns=[
@@ -11,6 +17,14 @@ urlpatterns=[
         path('delete_game/<gid>',views.delete_game,name='delete_game'),
         path('adminbookings/', views.admin_bookings, name='admin_bookings'),
         path('delete-booking/<int:booking_id>/', views.delete_booking, name='delete_booking'),
+
+
+
+        path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+        path('password_reset_done/', CustomPasswordResetDoneView.as_view(), name='pass_reset_done'),
+        path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+        path('reset/done/', CustomPasswordResetCompleteView.as_view(), name='pass_reset_complete'),
+
 
 
 
