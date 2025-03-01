@@ -17,6 +17,7 @@ urlpatterns=[
         path('delete_game/<gid>',views.delete_game,name='delete_game'),
         path('adminbookings/', views.admin_bookings, name='admin_bookings'),
         path('delete-booking/<int:booking_id>/', views.delete_booking, name='delete_booking'),
+        path('verify_otp_reg',views.verify_otp_reg, name='verify_otp_reg'),
 
 
 

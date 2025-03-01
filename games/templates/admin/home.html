@@ -258,7 +258,7 @@
     </div>
 
     <h2>Welcome to the Admin Dashboard</h2>
-    <a href="{% url 'game_logout' %}" class="logout">Logout</a>
+    <a href="{% url 'game_logout' %}" class="logout" onclick="return confirmLogout()">Logout</a>
 
     <div class="container">
         <h3>All Games</h3>
@@ -288,6 +288,16 @@
     <div class="footer">
         &copy; 2025 GamePlatform. All rights reserved.
     </div>
+
+
+
+    <script>
+        // Confirm Logout Function
+        function confirmLogout() {
+            return confirm("Are you sure you want to logout?");
+        }
+
+    </script>
 
 </body>
 </html>

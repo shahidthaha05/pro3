@@ -204,38 +204,61 @@ class CustomPasswordResetCompleteView(PasswordResetCompleteView):
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.shortcuts import render, redirect
+from django.utils.crypto import get_random_string
+from django.core.mail import send_mail
+from django.conf import settings
 
 def register(req):
     if req.method == 'POST':
-        # Getting the data from the form
         name = req.POST['name']
         email = req.POST['email']
         password = req.POST['password']
-
-        # Check if the user already exists based on the email
         if User.objects.filter(email=email).exists():
-            messages.warning(req, 'A user with this email already exists.')
-            return redirect('register')  # Make sure 'register' matches the URL name for the registration page
-
-        # If the user does not exist, create the new user
-        try:
-            user = User.objects.create_user(first_name=name, email=email, password=password, username=email)
-            user.save()
-
-            # Optionally, you can create a UserProfile here if you have additional information to store
-            # UserProfile.objects.create(user=user)
-
-            messages.success(req, 'Registration successful! You can now log in.')
-            return redirect('game_login')  # Redirect to the login page after successful registration
-
-        except Exception as e:
-            # If something goes wrong, show an error message
-            messages.error(req, f'Error during registration: {e}')
+            messages.warning(req, "Email already registered")
             return redirect('register')
+        otp = get_random_string(length=6, allowed_chars='0123456789')
+        req.session['otp'] = otp
+        req.session['email'] = email
+        req.session['name'] = name
+        req.session['password'] = password
+        send_mail(
+            'Your OTP Code',
+            f'Your OTP is: {otp}',
+            settings.EMAIL_HOST_USER, [email]
+        )
+        messages.success(req, "OTP sent to your email")
+        return redirect('verify_otp_reg')
+    return render(req, 'user/register.html')
 
-    else:
-        # Render the registration form if GET request
-        return render(req, 'user/register.html')
+def verify_otp_reg(req):
+    if req.method == 'POST':
+        entered_otp = req.POST['otp'] 
+        stored_otp = req.session.get('otp')
+        email = req.session.get('email')
+        name = req.session.get('name')
+        password = req.session.get('password')
+        if entered_otp == stored_otp:
+            user = User.objects.create_user(first_name=name,email=email,password=password,username=email)
+            user.is_verified = True
+            user.save()      
+            messages.success(req, "Registration successful! You can now log in.")
+            send_mail('User Registration Succesfull', 'Account Created Succesfully And Welcome To gamestation ', settings.EMAIL_HOST_USER, [email])
+            return redirect('game_login')
+        else:
+            messages.warning(req, "Invalid OTP. Try again.")
+            return redirect('verify_otp_reg')
+
+    return render(req, 'user/verify_code.html')
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -278,6 +301,8 @@ def view_game(request, game_id):
 from django.utils.timezone import now
 from datetime import datetime
 
+from django.contrib.auth.models import User
+
 def book_slot(request, game_id):
     game = get_object_or_404(Game, id=game_id)
     selected_date = request.POST.get('date') or request.GET.get('date')
@@ -295,6 +320,8 @@ def book_slot(request, game_id):
                     'game': game,
                     'selected_date': selected_date,  # Keep the user's selected date in the field
                     'all_slots': [],
+                    'user_name': request.user.first_name,
+                    'user_email': request.user.email,
                 })
         except ValueError:
             messages.error(request, 'Invalid date format. Please select a valid date.')
@@ -316,8 +343,8 @@ def book_slot(request, game_id):
         # Create a booking
         SlotBooking.objects.create(
             user=request.user,
-            name=request.POST['name'],
-            email=request.POST['email'],
+            name=request.POST['name'],  # Get the user's name from form
+            email=request.POST['email'],  # Get the user's email from form
             game=game,
             slot=slot,
             date=selected_date_obj
@@ -333,6 +360,8 @@ def book_slot(request, game_id):
         'game': game,
         'selected_date': selected_date,  # Ensure selected date stays in the input field
         'all_slots': all_slots,
+        'user_name': request.user.first_name,  # Pass user's name
+        'user_email': request.user.email,  # Pass user's email
     })
 
 

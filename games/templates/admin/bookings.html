@@ -151,7 +151,7 @@
             <a href="{% url 'home' %}">Dashboard</a>
             <a href="{% url 'admin_bookings' %}" class="active">View Bookings</a>
         </div>
-        <a href="{% url 'game_logout' %}" class="logout">Logout</a>
+        <a href="{% url 'game_logout' %}" class="logout" onclick="return confirmLogout()">Logout</a>
     </div>
 
     <h2>Admin Bookings</h2>
@@ -179,7 +179,7 @@
                         <td>
                             <form method="POST" action="{% url 'delete_booking' booking_id=booking.id %}">
                                 {% csrf_token %}
-                                <button type="submit" class="delete-button">Delete</button>
+                                <button type="submit" class="delete-button" onclick="return confirmDelete()">Delete</button>
                             </form>                        
                         </td>
                     </tr>
@@ -191,6 +191,19 @@
             </tbody>
         </table>
     </div>
+
+
+    <script>
+        // Confirm Logout Function
+        function confirmLogout() {
+            return confirm("Are you sure you want to logout?");
+        }
+        // Confirm Delete Product Function
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this product?");
+        }
+
+    </script>
 
 </body>
 </html>
